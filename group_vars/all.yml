@@ -1,0 +1,88 @@
+---
+security_ssh_port: 2224
+security_ssh_password_authentication: "no"
+security_ssh_permit_root_login: "no"
+security_ssh_usedns: "no"
+security_ssh_permit_empty_password: "no"
+security_ssh_challenge_response_auth: "no"
+security_ssh_gss_api_authentication: "no"
+security_ssh_x11_forwarding: "no"
+security_sshd_state: started
+security_ssh_restart_handler_state: restarted
+
+security_sudoers_passwordless:
+  - ubuntu
+
+security_autoupdate_enabled: true
+
+# Autoupdate mail settings used on Debian/Ubuntu only.
+security_autoupdate_reboot: "false"
+security_autoupdate_reboot_time: "03:00"
+security_autoupdate_mail_to: ""
+security_autoupdate_mail_on_error: true
+
+security_fail2ban_enabled: true
+security_fail2ban_custom_configuration_template: "jail.local.j2"
+
+
+# ----
+# Firewalls
+firewall_state: started
+firewall_enabled_at_boot: true
+
+firewall_flush_rules_and_chains: true
+
+firewall_allowed_tcp_ports:
+  - "80"
+  - "443"
+
+# Set to true to ensure other firewall management software is disabled.
+firewall_disable_firewalld: true
+firewall_disable_ufw: true
+
+firewall_additional_rules:
+  - "iptables -I INPUT -p tcp -s {{ VPN_IP }}/32 --dport 2224 -j ACCEPT"
+
+# Nginx Confs
+
+nginx_vhosts:
+  - listen: "80"
+    server_name: "eltropydemo.rvsharma.com"
+    server_name_redirect: "www.eltropydemo.rvsharma.com"
+    root: "/var/www/eltropydemo.rvsharma.com"
+    index: "index.html"
+    state: "present"
+    nginx_error_log: "/var/log/nginx/error.log warn"
+    nginx_access_log: "/var/log/nginx/access.log main buffer=16k"
+    template: "{{ nginx_vhost_template }}"
+    filename: "eltropydemo.rvsharma.com.conf"
+
+# nginx_harden
+nginx_client_body_buffer_size: '1k'
+nginx_remove_default_site: true
+nginx_client_max_body_size: '1k'
+nginx_keepalive_timeout: '5 5'
+nginx_server_tokens: 'off'
+nginx_client_header_buffer_size: "1k"
+nginx_large_client_header_buffers: "2 1k"
+nginx_client_body_timeout: "10"
+nginx_client_header_timeout: "10"
+nginx_send_timeout: "10"
+nginx_limit_conn_zone: "$binary_remote_addr zone=default:10m"
+nginx_limit_conn: "default 5"
+nginx_add_header: [
+# vvoid clickjacking
+"X-Frame-Options SAMEORIGIN",
+# disable content-type sniffing
+"X-Content-Type-Options nosniff",
+# XSS filter
+"X-XSS-Protection \"1; mode=block\"",
+"Strict-Transport-Security max-age=15768000",
+"Content-Security-Policy \"script-src 'self'; object-src 'self'\"" ]
+
+nginx_set_cookie_flag: "* HttpOnly secure"
+nginx_ssl_prefer_server_ciphers: "on"
+nginx_ssl_protocols: "TLSv1.2"
+nginx_ssl_ciphers: "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256"
+nginx_ssl_session_tickets: "off"
+nginx_dh_size: "2048"
