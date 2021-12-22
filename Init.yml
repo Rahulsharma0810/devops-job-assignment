@@ -12,7 +12,6 @@
     - { role: cloudwatch, tags: cloudwatch }
     - { role: firewall, tags: firewall }
     - { role: security, tags: security }
-    - { role: clamav, tags: clamav}
     - { role: nginx, tags: nginx}
     - { role: nginx_harden, tags: nginx_harden}
     - { role: clamav, tags: clamav}

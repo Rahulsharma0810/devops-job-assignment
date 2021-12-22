@@ -186,7 +186,7 @@ resource "aws_route_table" "app_rtb_public" {
   vpc_id = aws_vpc.app_vpc.id
 
   route {
-      cidr_block = "${aws_instance.instance.public_ip}/32"
+      cidr_block = "0.0.0.0/0"
       gateway_id = aws_internet_gateway.app_igw.id
   }
 
@@ -651,7 +651,6 @@ resource "aws_backup_plan" "ec2_backup" {
 
 ## Selecting Resource For Backups
 resource "aws_backup_selection" "ec2_selection" {
-  # iam_role_arn = aws_iam_role.web_iam_role.arn
   iam_role_arn = "arn:aws:iam::901377300563:role/service-role/AWSBackupDefaultServiceRole"
   name         = "ec2_backup_selection"
   plan_id      = aws_backup_plan.ec2_backup.id
